@@ -37,7 +37,7 @@ try:
     for row in rows:
         print(row)
     
-    # RATEOFRETURN TABLE
+    # RateOfReturn TABLE
     sql = '''CREATE TABLE IF NOT EXISTS RateOfReturn (
         Source CHAR(1) NOT NULL,
         SourceFundID VARCHAR(50) NOT NULL,
@@ -65,7 +65,7 @@ try:
     cursor.execute(sql)
     db.commit()
     
-    # TASSCharacteristics
+    # TASSCharacteristics TABLE
     # SourceFundID is T_ProductReference
     
     sql = '''CREATE TABLE IF NOT EXISTS TASSCharacteristics (
@@ -130,7 +130,7 @@ try:
     cursor.execute(sql)
     db.commit()
     
-    # EurekaCharacteristics
+    # EurekaCharacteristics TABLE
     # SourceFundID is E_FundID
     sql = '''CREATE TABLE IF NOT EXISTS EurekaCharacteristics (
         Source CHAR(1) NOT NULL,
@@ -255,7 +255,25 @@ try:
     cursor.execute(sql)
     db.commit()
     
-    # SourceCharacteristics is a VIEW, not a real TABLE. Create it later once populated
+    # SourceCharacteristics is a VIEW (outer join), not a pure TABLE. 
+    # Create it later once the TASS and Eureka tables are populated.
+    # SQLite does not have full outer join, so use union of two left outer joins instead.
+    # Join on two-variable primary key Source and SourceFundID
+    sql = '''CREATE VIEW "SourceCharacteristics" AS
+
+SELECT * FROM TASSCharacteristics 
+LEFT OUTER JOIN EurekaCharacteristics 
+ON TASSCharacteristics.Source = EurekaCharacteristics.Source 
+    AND TASSCharacteristics.SourceFundID = EurekaCharacteristics.SourceFundID
+
+UNION
+
+SELECT * FROM EurekaCharacteristics 
+LEFT OUTER JOIN TASSCharacteristics 
+ON TASSCharacteristics.Source = EurekaCharacteristics.Source 
+   AND TASSCharacteristics.SourceFundID = EurekaCharacteristics.SourceFundID
+;'''
+    # Use this code later...
     
     # MergedCharacteristics TABLE
     # May need to change this later
