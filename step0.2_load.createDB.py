@@ -66,14 +66,15 @@ try:
     db.commit()
     
     # TASSCharacteristics
+    # SourceFundID is T_ProductReference
+    
     sql = '''CREATE TABLE IF NOT EXISTS TASSCharacteristics (
         Source CHAR(1) NOT NULL,
         SourceFundID VARCHAR(50) NOT NULL,
         
-        "T_ProductReference" INTEGER,
         "T_Name" VARCHAR(255),
         "T_PrimaryCategory" VARCHAR(50),
-        "T_CurrencyCode"  VARCHAR(3),
+        "T_CurrencyCode"  VARCHAR(50),
         "T_CurrencyDescription" VARCHAR(50),
         "T_LegalStructure" VARCHAR(50),
         "T_ClosedToInvestDate" DATE,
@@ -125,18 +126,157 @@ try:
         
         PRIMARY KEY (Source, SourceFundID)
 );'''
-    
-
         # Leave out "T_CompanyType" as we only want the "Management Firm" 
     cursor.execute(sql)
     db.commit()
     
-    
-    
-    # OTHER TABLES...
-
-    print ("TODO: fill in other tables")
+    # EurekaCharacteristics
+    # SourceFundID is E_FundID
+    sql = '''CREATE TABLE IF NOT EXISTS EurekaCharacteristics (
+        Source CHAR(1) NOT NULL,
+        SourceFundID VARCHAR(50) NOT NULL,
+        
+        "E_FundName" VARCHAR(255),
+        "E_DateAdded" DATE,
+        "E_Flagship" VARCHAR(3),
+        "E_Closed" VARCHAR(3),
+        "E_Limited" VARCHAR(3),
+        "E_Dead" VARCHAR(3),
+        "E_DeadDate" DATE,
+        "E_DeadReason" VARCHAR(255),
+        
+        "E_1MPriorReturn_pc" FLOAT,
+        "E_2MPriorReturn_pc" FLOAT,
+        "E_3MPriorReturn_pc" FLOAT,
+        "E_AnnualisedReturn_pc" FLOAT,
+        "E_BestMonthlyReturn_pc" FLOAT,
+        "E_WorstMonthlyReturn_pc" FLOAT,
+        "E_4YPriorReturn_pc" FLOAT,
+        "E_3YPriorReturn_pc" FLOAT,
+        "E_2YPriorReturn_pc" FLOAT,
+        "E_1YPriorReturn_pc" FLOAT,
+        "E_ReturnSinceInception_pc" FLOAT,
+        "E_Last3Months_pc" FLOAT,
+        "E_OneYearRollingReturn_pc" FLOAT,
+        "E_TwoYearRollingReturn_pc" FLOAT,
+        "E_FiveYearRollingReturn_pc" FLOAT,
+        "E_SharpeRatio" FLOAT,
+        "E_AnnualisedStandardDeviation_pc" FLOAT,
+        "E_DownsideDeviation_pc" FLOAT,
+        "E_UpsideDeviation_pc" FLOAT,
+        "E_SortinoRatio" FLOAT,
+        "E_MaximumDrawdown_pc" FLOAT,
+        "E_PercentaageOfPositiveMonths_pc" FLOAT,
+        "E_VaR90_pc" FLOAT,
+        "E_Var95_pc" FLOAT,
+        "E_Var99_pc" FLOAT,
+        
+        "E_MainInvestmentStrategy" VARCHAR(255),
+        "E_SecondaryInvestmentStrategy" VARCHAR(255),
+        "E_GeographicalMandate" VARCHAR(255),
+        "E_FundSizeUSDm" FLOAT,
+        "E_FundCapacityUSDm" FLOAT,
+        "E_FirmsTotalAssetsUSDm" FLOAT,
+        "E_TotalAssetsInHedgeFundsUSDm" FLOAT,
+        "E_AuMUpdateDate" DATE,
+        "E_InceptionDate" DATE,
+        "E_Domicile" VARCHAR(50),
+        "E_Currency" VARCHAR(50),
+        "E_DividendPolicy" VARCHAR(255),
+        "E_HurdleRate" VARCHAR(255),
+        "E_HighWaterMark" VARCHAR(255),
+        "E_ListedOnExchange" VARCHAR(3),
+        "E_ExchangeName" VARCHAR(255),
+        "E_MinimumInvestmentCurrency" VARCHAR(50),
+        "E_MinimumInvestmentSize" VARCHAR(255),
+        "E_SubsequentInvestmentCurrency" VARCHAR(50),
+        "E_Leverage" VARCHAR(255),
+        "E_AccountingMethodForPerformanceFees" VARCHAR(255),
+        "E_AnnualizedTargetReturn" VARCHAR(255),
+        "E_AnnualizedTargetVolatility" VARCHAR(255),
+        "E_MinNetExposure" FLOAT,
+        "E_MaxNextExposure" FLOAT,
+        "E_MinGrossExposure" FLOAT,
+        "E_MaxGrossExposure" FLOAT,
+        "E_InvestInPrivatePlacesments" VARCHAR(3),
+        "E_ManagedAccountsOffered" VARCHAR(3),
+        "E_UCITSCompliant" VARCHAR(3),
+        "E_HMRCReportingStatus" VARCHAR(3),
+        "E_SECException" VARCHAR(50),
+        
+        "E_WomenOwnedMinorityOwned" VARCHAR(3),
+        
+        "E_AdvisoryCompany" VARCHAR(255),
+        "E_ManagementCompany" VARCHAR(255),
+        "E_Country" VARCHAR(50),
+        
+        "E_YearOfIncorporation" INTEGER,
+        "E_SECRegisteredFirm" VARCHAR(3),
+        
+        "E_EurekahedgeID" VARCHAR(50),
+        "E_ISIN" VARCHAR(50),
+        "E_SEDOL" VARCHAR(50),
+        "E_Valoren" VARCHAR(50),
+        "E_CUSIP" VARCHAR(50),
+        "E_Bloomberg" VARCHAR(50),
+        "E_Reuters" VARCHAR(50),
+        
+        "E_SubscriptionFrequency" VARCHAR(255),
+        "E_SubscriptionNotificationPeriod" VARCHAR(255),
+        "E_RedemptionFrequency" VARCHAR(255),
+        "E_RedemptionNotificationPeriod" VARCHAR(255), 
+        "E_LockUp" VARCHAR(255),
+        "E_Penalty" VARCHAR(255),
+        "E_KeyManClause" VARCHAR(255),
+        "E_ManagementFee_pc" VARCHAR(255),
+        "E_PerformanceFee_pc" VARCHAR(255),
+        "E_OtherFee_pc" VARCHAR(255),
+        
+        "E_IndustryFocus" VARCHAR(255),
+        
+        "E_CountryFocus" VARCHAR(255),
+        
+        "E_Administrator" VARCHAR(255),
+        "E_Auditor" VARCHAR(255),
+        "E_Custodian" VARCHAR(255),
+        "E_PrincipalPrimeBrokerBroker" VARCHAR(255),
+        "E_SecondaryPrimeBrokerBroker" VARCHAR(255),
+        
+        "E_SyntheticPrimeBroker" VARCHAR(255),
+        "E_LegalAdvisorOffshore" VARCHAR(255),
+        "E_LegalAdvisorOnshore" VARCHAR(255),
+        "E_RiskPlatform" VARCHAR(255),
+        
+        "E_ManagerProfile" VARCHAR(255),
+        "E_Strategy" VARCHAR(255),
+        
+        PRIMARY KEY (Source, SourceFundID)
+);'''
+    cursor.execute(sql)
     db.commit()
+    
+    # SourceCharacteristics is a VIEW, not a real TABLE. Create it later once populated
+    
+    # MergedCharacteristics TABLE
+    # May need to change this later
+    sql = '''CREATE TABLE IF NOT EXISTS EurekaCharacteristics (
+        Source CHAR(1) NOT NULL,
+        SourceFundID VARCHAR(50) NOT NULL,
+        
+        FundName VARCHAR(255),
+        Currency VARCHAR(50), 
+        CompanyName VARCHAR(255),
+        
+        StdCompanyName VARCHAR(255), 
+        MergedFundID VARCHAR(50), 
+        UseDummy VARCHAR(1),
+        
+        PRIMARY KEY (Source, SourceFundID)
+);'''
+    cursor.execute(sql)
+    db.commit()
+
+
 except Exception as e:
     db.rollback()
     raise e
