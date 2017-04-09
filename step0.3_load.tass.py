@@ -1,14 +1,15 @@
 #!/usr/bin/python    
 # Step 0.3
 # Load: Read TASS from text to database
+# Change first two variables True/False to trigger each part of this script.
 
 import ConfigParser
 import os
 import csv
 import sqlite3
 
-doCharacteristics = True
-doReturns = True
+doCharacteristics = True # ONLY MATCHES 25% OF FUNDS' COMPANIES SO FAR (5069/20064 FUNDS)
+doReturns = False # NOT READY YET!
 
 config = ConfigParser.RawConfigParser()
 config.read('paths.properties')
@@ -23,7 +24,7 @@ if True:
     # Fill in tables...
     cursor = db.cursor()
     
-    sql = "SELECT * FROM TASSCharacteristics LIMIT 2;"
+    sql = "SELECT count(*) FROM TASSCharacteristics;"
     cursor.execute(sql)
     print ("What entries already exist, if any?")
     rows = cursor.fetchall()
@@ -40,14 +41,15 @@ if True:
     livePaths = (config.get('SourceFiles', 'source.tass.live.companies'), config.get('SourceFiles', 'source.tass.live.productdetails'), config.get('SourceFiles', 'source.tass.live.productperformance'))
     deadPaths = (config.get('SourceFiles', 'source.tass.dead.companies'), config.get('SourceFiles', 'source.tass.dead.productdetails'), config.get('SourceFiles', 'source.tass.dead.productperformance'))
     alltimeFilePaths = [livePaths, deadPaths]
+    fundsMatchedToCompany = 0
+    fundsNotMatchedToCompany = 0
     
     # all companies (tuple of companyID, companyName), indexed by fund ID
-    companies = {}
-    
-    
-    #cursor.execute("DELETE FROM TASSCharacteristics;")
+
+    cursor.execute("DELETE FROM TASSCharacteristics;")
     if doCharacteristics:
         for filePaths in alltimeFilePaths:
+            companies = {}
             companiesPath = filePaths[0]
             productDetailsPath = filePaths[1]
             performancePath = filePaths[2]
@@ -56,8 +58,8 @@ if True:
             # Load companies into memory first
             # # Read CSV
             try:
-                with open(companiesPath, 'r') as fin:
-                    rows = csv.reader(fin)
+                with open(companiesPath, 'r') as companiesFile:
+                    rows = csv.reader(companiesFile)
                     next(rows) # skip header
                     for row in rows:
                         try:
@@ -77,8 +79,9 @@ if True:
                 print ('Exception raised reading or closing file ' + companiesPath)
             
             # Load product details, with companies from memory, for TASSCharacteristics table
-            with open(productDetailsPath, 'r') as fin:
-                    rows = csv.reader(fin)
+            with open(productDetailsPath, 'r') as productDetailsFile:
+                    rows = csv.reader(productDetailsFile)
+                    print('Read lines from ' + productDetailsPath)
                     next(rows) # skip header
                     for row in rows:
                         sql = '''INSERT INTO TASSCharacteristics(
@@ -146,17 +149,85 @@ if True:
                             companyID = company[0]
                             companyName = company[1]
                             sql = sql + "\"" + companyID + "\", \"" + companyName + "\""
+                            fundsMatchedToCompany =  fundsMatchedToCompany + 1
                         else:
                             sql = sql + "NULL, NULL"
+                            fundsNotMatchedToCompany = fundsNotMatchedToCompany + 1
                         sql = sql + '''
     );'''
-            #print (sql)
-            cursor.execute(sql)
-            db.commit()
-            # ...
+                        #print (sql)
+                        cursor.execute(sql)
+                        db.commit()
+            
+        cursor.execute("SELECT count(*) FROM TASSCharacteristics;")
+        print('Rows in TASSCharacteristics: ' + str(cursor.fetchall()[0][0]))
+        pcFundsMatchedToCompany = 100 * fundsMatchedToCompany/(fundsMatchedToCompany + fundsNotMatchedToCompany)
+        print('Funds matched to company ' + str(fundsMatchedToCompany))
+        print('Funds not matched to company ' + str(fundsNotMatchedToCompany))
+        print('Funds matched to company ' + str(pcFundsMatchedToCompany) + '%')
+    else:
+        # Don't doCharacteristics
+        sql = "SELECT count(*) FROM TASSCharacteristics;"
+        cursor.execute(sql)
+        print ("How many funds are in TASSCharacteristics?")
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row)
         
-        # Load product performance for RateOfReturn and AUM tables
-        # ...
+    # Load product performance for RateOfReturn and AUM tables
+    if doReturns:
+        for filePaths in alltimeFilePaths:
+            companies = {}
+            companiesPath = filePaths[0]
+            productDetailsPath = filePaths[1]
+            performancePath = filePaths[2]
+            
+            # Read performance file
+            with open(performancePath, 'r') as performanceFile:
+                rows = csv.reader(performanceFile)
+                print('Read lines from ' + productDetailsPath)
+                next(rows) # skip header
+                fundID = '0'
+                fundIDPrev = '-1'
+                date = 'YYYY-MM'
+                ror = '0'
+                aum = '0'
+                sqlROR = ""
+                sqlAUM = ""
+                firstRow = True
+                for row in rows:
+                    #"ProductReference","Date","RateOfReturn","NAV","EstimatedAssets","EstimatedActual"
+                    #21,1990-01-31 00:00:00,-2.4,97.6,48746,"A"
+                    fundIDPrev = fundID
+                    fundID = row[0]
+                    date = row[1][0:7]
+                    ror = row[2]
+                    aum = row[4]
+                    
+                    if fundID != fundIDPrev:
+                        #First line of new fund, do something with previous block, if any, then reset
+                        if firstRow:
+                            firstRow = False
+                        else
+                            # Make the SQL and execute
+                            pass
+                    
+                    # This is a normal line, even if it's the last of a fund block
+                    # ... save monthly data to a dict
+                    
+                    #rough
+                    sqlR = '''INSERT INTO RateOfReturn(
+            Source,
+            SourceFundID, "1990-01"()  VALUES();'''   
+                    sqlA = '''INSERT INTO AUM () VALUES() ;'''
+                    # Need to group all values for each fundID before writing SQL line
+                    #...
+                # Don't forget to do the last block!
+                # Make the SQL and execute...
+    
+    # ...
+    
+    
     # Repeats for live/dead funds, appending (insert if not exists?)
     
 
