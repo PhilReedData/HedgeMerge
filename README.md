@@ -11,7 +11,7 @@ Merge hedge funds data from Eurekahedge and TASS into a single database. Uses Py
 ## Step 0 - load big files
 1. Prepare by saving the Eureka data from Excel as several tab-delimited text files, then fill in the paths file. Unzip the TASS CSV files.
 2. Create the database file HedgeMerge.db in SQLite with empty tables.
-3. Load the TASS files into the database.
+3. Load the TASS files into the database. For companies, use "Management Firm" lines only.
 4. Load the Eurekahedge files into the database.
 
 The tables will have these headings. The pair `Source, SourceFundID` is the unique primary key in each.

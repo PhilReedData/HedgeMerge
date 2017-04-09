@@ -37,8 +37,8 @@ try:
     for row in rows:
         print(row)
     
-    # RETURN TABLE
-    sql = '''CREATE TABLE IF NOT EXISTS Return (
+    # RATEOFRETURN TABLE
+    sql = '''CREATE TABLE IF NOT EXISTS RateOfReturn (
         Source CHAR(1) NOT NULL,
         SourceFundID VARCHAR(50) NOT NULL,
         '''
@@ -120,16 +120,18 @@ try:
         "T_RegisteredInvestmentAdviser" INTEGER,
         "T_DomicileState" VARCHAR(50),
         "T_DomicileCountry" VARCHAR(50),
+        "T_CompanyID" INTEGER,
+        "T_CompanyName" VARCHAR(255),
         
         PRIMARY KEY (Source, SourceFundID)
 );'''
     
-    
-        # "T_CompanyID" INTEGER,
-        # "T_CompanyName" VARCHAR(255),
-        # "T_CompanyType" VARCHAR(50),
+
+        # Leave out "T_CompanyType" as we only want the "Management Firm" 
     cursor.execute(sql)
     db.commit()
+    
+    
     
     # OTHER TABLES...
 
