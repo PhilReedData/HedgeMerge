@@ -10,8 +10,17 @@ import csv
 import sqlite3
 
 doCharacteristics = True 
-doROR = False 
-doAUM = False
+doROR = True 
+doAUM = True
+
+MONTHS = {'Jan':'01', 'Feb':'02', 'Mar':'03', 'Apr':'04', 'May':'05', 'Jun':'06', 'Jul':'07', 'Aug':'08', 'Sep':'09', 'Oct':'10', 'Nov':'11', 'Dec':'12' }
+# Convert date from 'MMM YY' to 'YYYY-MM'
+def convertFromEurekaDate(dateIn) :
+    yy = dateIn[4:6]
+    mmm = dateIn[0:3]
+    yyyy = '20' + yy if int(yy) < 90 else '19' + yy
+    mm = MONTHS[mmm]
+    return yyyy + '-' + mm
 
 config = ConfigParser.RawConfigParser()
 config.read('paths.properties')
@@ -37,7 +46,6 @@ try:
         characteristicsPath = config.get('SourceFiles', 'source.eureka.funddetails')
         
         cursor.execute("DELETE FROM EurekaCharacteristics;")
-        import io
         with open(characteristicsPath, 'r') as characteristicsFile:
             rows = csv.reader(characteristicsFile, delimiter='\t')
             next(rows) # skip sub heading line
@@ -183,7 +191,6 @@ try:
             rows = cursor.fetchall()
             for row in rows:
                 print(row)
-        # ...
     
     else: # not doCharacteristics
         sql = "SELECT count(*) FROM EurekaCharacteristics;"
@@ -192,14 +199,109 @@ try:
         rows = cursor.fetchall()
         for row in rows:
             print(row)
+    
+    if doROR:
+        # The returns sheet in Excel comes with ROR/AUM alternating lines.
+        # They have been separated into two text files for ease of importing.
+        # The separation was done in Excel using filters and exporting.
+        
+        rorPath =  config.get('SourceFiles', 'source.eureka.return')
+        
+        cursor.execute("DELETE FROM RateOfReturn WHERE Source = \"E\";")
+        with open(rorPath, 'r') as rorFile:
+            #[0]	[1]Fund ID	[2]Fund Name	[3]Aug 16	Jul 16	...May 94	Apr 94
+            #Return	33992	168 Growth Fund LP				...	-6.45	4.6
+            rows = csv.reader(rorFile, delimiter='\t')
+            # Get dates from header row, cells 3 to end = rows[0][3:]
+            dates = []
+            firstRow = True
+            for row in rows:
+                if firstRow:
+                    for eurekaDate in row[3:]:
+                        dates.append(convertFromEurekaDate(eurekaDate))
+                    #print(dates)
+                    firstRow = False
+                    continue
+                fundID = row[1]
+                if fundID == '':
+                    continue
+                sql = 'INSERT INTO RateOfReturn (Source, SourceFundID'
+                for d in dates:
+                    sql = sql + ', "' + d + '"'
+                sql = sql + ') VALUES ("E", "' + fundID + '"'
+                for cell in row[3:]:
+                    v = 'NULL' if cell=='' else '"' + cell + '"'
+                    sql = sql + ', ' + v
+                sql = sql + ');'
+                cursor.execute(sql)
+            db.commit()
+            sql = "SELECT count(*) FROM RateOfReturn WHERE Source = \"E\";"
+            cursor.execute(sql)
+            print ("How many rows exist?")
+            rows = cursor.fetchall()
+            for row in rows:
+                print(row)
+                #...
         # ...
+    else: # not doROR
+        sql = "SELECT count(*) FROM RateOfReturn WHERE Source = \"E\";"
+        cursor.execute(sql)
+        print ("How many RateOfReturn E rows exist?")
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row)
     
+    if doAUM:
+        # The returns sheet in Excel comes with ROR/AUM alternating lines.
+        # They have been separated into two text files for ease of importing.
+        # The separation was done in Excel using filters and exporting.
+        
+        aumPath =  config.get('SourceFiles', 'source.eureka.aum')
+        
+        cursor.execute("DELETE FROM AUM WHERE Source = \"E\";")
+        with open(aumPath, 'r') as aumFile:
+            #[0]	[1]Fund ID	[2]Fund Name	[3]Aug 16	Jul 16	...May 94	Apr 94
+            #AUM	33992	168 Growth Fund LP				...	-6.45	4.6
+            rows = csv.reader(aumFile, delimiter='\t')
+            # Get dates from header row, cells 3 to end = rows[0][3:]
+            dates = []
+            firstRow = True
+            for row in rows:
+                if firstRow:
+                    for eurekaDate in row[3:]:
+                        dates.append(convertFromEurekaDate(eurekaDate))
+                    #print(dates)
+                    firstRow = False
+                    continue
+                fundID = row[1]
+                if fundID == '':
+                    continue
+                sql = 'INSERT INTO AUM (Source, SourceFundID'
+                for d in dates:
+                    sql = sql + ', "' + d + '"'
+                sql = sql + ') VALUES ("E", "' + fundID + '"'
+                for cell in row[3:]:
+                    v = 'NULL' if cell=='' else '"' + cell + '"'
+                    sql = sql + ', ' + v
+                sql = sql + ');'
+                cursor.execute(sql)
+            db.commit()
+            sql = "SELECT count(*) FROM AUM WHERE Source = \"E\";"
+            cursor.execute(sql)
+            print ("How many rows exist?")
+            rows = cursor.fetchall()
+            for row in rows:
+                print(row)
+                #...
+        # ...
+    else: # not doAUM
+        sql = "SELECT count(*) FROM AUM WHERE Source = \"E\";"
+        cursor.execute(sql)
+        print ("How many AUM E rows exist?")
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row)
     
-    
-    
-    rorPath =  config.get('SourceFiles', 'source.eureka.return')
-    aumPath =  config.get('SourceFiles', 'source.eureka.return')
-    # ...
 
 except Exception as e:
     db.rollback()

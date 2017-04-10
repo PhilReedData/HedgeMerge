@@ -176,8 +176,8 @@ if True:
         
     # Load product performance for RateOfReturn and AUM tables
     if doReturns:
-        cursor.execute("DELETE FROM RateOfReturn;")
-        cursor.execute("DELETE FROM AUM;") # TEMP
+        cursor.execute("DELETE FROM RateOfReturn WHERE Source = \"T\";")
+        cursor.execute("DELETE FROM AUM WHERE Source = \"T\";") # TEMP
         for filePaths in alltimeFilePaths:
             companies = {}
             companiesPath = filePaths[0]
@@ -300,17 +300,17 @@ if True:
                 fundAUMs = {}
                 
                 # Print summary
-                cursor.execute("SELECT count(*) FROM RateOfReturn;")
-                print('Rows in RateOfReturn: ' + str(cursor.fetchall()[0][0]))
-                cursor.execute("SELECT count(*) FROM AUM;")
-                print('Rows in AUM: ' + str(cursor.fetchall()[0][0]))
+                cursor.execute("SELECT count(*) FROM RateOfReturn WHERE Source = \"T\";")
+                print('Rows T in RateOfReturn: ' + str(cursor.fetchall()[0][0]))
+                cursor.execute("SELECT count(*) FROM AUM WHERE Source = \"T\";")
+                print('Rows T in AUM: ' + str(cursor.fetchall()[0][0]))
     # END IF doReturns
     else:
         # Print summary
-        cursor.execute("SELECT count(*) FROM RateOfReturn;")
-        print('Rows in RateOfReturn: ' + str(cursor.fetchall()[0][0]))
-        cursor.execute("SELECT count(*) FROM AUM;")
-        print('Rows in AUM: ' + str(cursor.fetchall()[0][0]))
+        cursor.execute("SELECT count(*) FROM RateOfReturn WHERE Source = \"T\";")
+        print('Rows T in RateOfReturn: ' + str(cursor.fetchall()[0][0]))
+        cursor.execute("SELECT count(*) FROM AUM WHERE Source = \"T\";")
+        print('Rows T in AUM: ' + str(cursor.fetchall()[0][0]))
     
     
     # Repeats for live/dead funds, appending (insert if not exists?)
