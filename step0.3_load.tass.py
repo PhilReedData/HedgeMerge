@@ -8,7 +8,7 @@ import os
 import csv
 import sqlite3
 
-doCharacteristics = True # ONLY MATCHES 25% OF FUNDS' COMPANIES SO FAR (5069/20064 FUNDS)
+doCharacteristics = True
 doReturns = True 
 
 config = ConfigParser.RawConfigParser()
