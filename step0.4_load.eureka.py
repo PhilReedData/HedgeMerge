@@ -187,7 +187,7 @@ try:
             db.commit()
             sql = "SELECT count(*) FROM EurekaCharacteristics;"
             cursor.execute(sql)
-            print ("How many rows exist?")
+            print ("How many EurekaCharacteristics rows exist?")
             rows = cursor.fetchall()
             for row in rows:
                 print(row)
@@ -237,7 +237,7 @@ try:
             db.commit()
             sql = "SELECT count(*) FROM RateOfReturn WHERE Source = \"E\";"
             cursor.execute(sql)
-            print ("How many rows exist?")
+            print ("How many RateOfReturn E rows exist?")
             rows = cursor.fetchall()
             for row in rows:
                 print(row)
@@ -288,7 +288,7 @@ try:
             db.commit()
             sql = "SELECT count(*) FROM AUM WHERE Source = \"E\";"
             cursor.execute(sql)
-            print ("How many rows exist?")
+            print ("How many AUM E rows exist?")
             rows = cursor.fetchall()
             for row in rows:
                 print(row)
