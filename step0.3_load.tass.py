@@ -9,7 +9,7 @@ import csv
 import sqlite3
 
 doCharacteristics = True # ONLY MATCHES 25% OF FUNDS' COMPANIES SO FAR (5069/20064 FUNDS)
-doReturns = False # NOT READY YET!
+doReturns = True 
 
 config = ConfigParser.RawConfigParser()
 config.read('paths.properties')
@@ -157,7 +157,7 @@ if True:
     );'''
                         #print (sql)
                         cursor.execute(sql)
-                        db.commit()
+                    db.commit()
             
         cursor.execute("SELECT count(*) FROM TASSCharacteristics;")
         print('Rows in TASSCharacteristics: ' + str(cursor.fetchall()[0][0]))
@@ -176,6 +176,8 @@ if True:
         
     # Load product performance for RateOfReturn and AUM tables
     if doReturns:
+        cursor.execute("DELETE FROM RateOfReturn;")
+        cursor.execute("DELETE FROM AUM;") # TEMP
         for filePaths in alltimeFilePaths:
             companies = {}
             companiesPath = filePaths[0]
@@ -192,9 +194,11 @@ if True:
                 date = 'YYYY-MM'
                 ror = '0'
                 aum = '0'
+                fundRORs = {} # date:value
+                fundAUMs = {} # date:value
                 sqlROR = ""
                 sqlAUM = ""
-                firstRow = True
+                veryFirstRow = True
                 for row in rows:
                     #"ProductReference","Date","RateOfReturn","NAV","EstimatedAssets","EstimatedActual"
                     #21,1990-01-31 00:00:00,-2.4,97.6,48746,"A"
@@ -206,26 +210,107 @@ if True:
                     
                     if fundID != fundIDPrev:
                         #First line of new fund, do something with previous block, if any, then reset
-                        if firstRow:
-                            firstRow = False
-                        else
-                            # Make the SQL and execute
-                            pass
+                        if veryFirstRow:
+                            veryFirstRow = False
+                        else:
+                            # Make the SQL and execute                
+                            # Don't forget to do the last block!
+                            datesROR = fundRORs.keys()
+                            datesAUM = fundAUMs.keys()
+                            valuesROR = list(fundRORs.values())
+                            valuesAUM = list(fundAUMs.values())
+                            sqlROR = '''INSERT INTO RateOfReturn (
+                    Source,
+                    SourceFundID'''
+                            for dateROR in datesROR:
+                                sqlROR = sqlROR + ', "' + dateROR + '" '
+                            sqlROR = sqlROR + '''
+            )  VALUES (
+                    "T", "''' + fundIDPrev + '"'
+                            for valueROR in valuesROR:
+                                sqlROR = sqlROR + ', "' + valueROR + '" '
+                            sqlROR = sqlROR + '''
+             );'''   
+                            sqlAUM = '''INSERT INTO AUM (
+                    Source,
+                    SourceFundID'''
+                            for dateAUM in datesAUM:
+                                sqlAUM = sqlAUM + ', "' + dateAUM + '" '
+                            sqlAUM = sqlAUM + '''
+            )  VALUES (
+                    "T", "''' + fundIDPrev + '"'
+                            for valueAUM in valuesAUM:
+                                sqlAUM = sqlAUM + ', "' + valueAUM + '" '
+                            sqlAUM = sqlAUM + '''
+             );'''   
+                            # Call DB
+                            cursor.execute(sqlROR)
+                            cursor.execute(sqlAUM)
+                            #db.commit()
+                            # Reset block
+                            fundRORs = {}
+                            fundAUMs = {}
                     
+                    # If before 1990, skip!
+                    if int(date[0:4]) < 1990:
+                        #print("Discarding " + date + " for fund " + fundID)
+                        continue
                     # This is a normal line, even if it's the last of a fund block
                     # ... save monthly data to a dict
-                    
-                    #rough
-                    sqlR = '''INSERT INTO RateOfReturn(
-            Source,
-            SourceFundID, "1990-01"()  VALUES();'''   
-                    sqlA = '''INSERT INTO AUM () VALUES() ;'''
+                    fundRORs[date] = ror
+                    fundAUMs[date] = aum
                     # Need to group all values for each fundID before writing SQL line
-                    #...
+                # End for loop    
                 # Don't forget to do the last block!
                 # Make the SQL and execute...
-    
-    # ...
+                datesROR = fundRORs.keys()
+                datesAUM = fundAUMs.keys()
+                valuesROR = list(fundRORs.values())
+                valuesAUM = list(fundAUMs.values())
+                sqlROR = '''INSERT INTO RateOfReturn (
+        Source,
+        SourceFundID'''
+                for dateROR in datesROR:
+                    sqlROR = sqlROR + ', "' + dateROR + '" '
+                sqlROR = sqlROR + '''
+)  VALUES (
+        "T", "''' + fundID + '"'
+                for valueROR in valuesROR:
+                    sqlROR = sqlROR + ', "' + valueROR + '" '
+                sqlROR = sqlROR + '''
+ );'''   
+                sqlAUM = '''INSERT INTO AUM (
+        Source,
+        SourceFundID'''
+                for dateAUM in datesAUM:
+                    sqlAUM = sqlAUM + ', "' + dateAUM + '" '
+                sqlAUM = sqlAUM + '''
+)  VALUES (
+        "T", "''' + fundID + '"'
+                for valueAUM in valuesAUM:
+                    sqlAUM = sqlAUM + ', "' + valueAUM + '" '
+                sqlAUM = sqlAUM + '''
+ );'''   
+                # Call DB
+                cursor.execute(sqlROR)
+                cursor.execute(sqlAUM)
+                db.commit()
+                # Reset block (just to clear memory, really)
+                fundRORs = {}
+                fundAUMs = {}
+                
+                # Print summary
+                cursor.execute("SELECT count(*) FROM RateOfReturn;")
+                print('Rows in RateOfReturn: ' + str(cursor.fetchall()[0][0]))
+                cursor.execute("SELECT count(*) FROM AUM;")
+                print('Rows in AUM: ' + str(cursor.fetchall()[0][0]))
+    # END IF doReturns
+    else:
+        # Print summary
+        cursor.execute("SELECT count(*) FROM RateOfReturn;")
+        print('Rows in RateOfReturn: ' + str(cursor.fetchall()[0][0]))
+        cursor.execute("SELECT count(*) FROM AUM;")
+        print('Rows in AUM: ' + str(cursor.fetchall()[0][0]))
     
     
     # Repeats for live/dead funds, appending (insert if not exists?)
