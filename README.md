@@ -44,4 +44,12 @@ We will fill in the remaining coloumns later:
 `StdCompanyName, MergedFundID, UseDummy`
 ...where MergedFundID is not unique, and UseDummy is 1 or 0.
 
+(_I am up to here so far with the code!_)
+
+## Step 1 - refine characteristics
+1. Create MergedCharacteristics table. Keep company name, currency and fund name (until now, different field names for each source) as well as primary keys of Source and SourceFundID.
+2. Create standardized names for companies as a new column. Use method from old inherited code.
+
+## Data
+Data is stored in an SQLite database. It could be exported to flat text, easiest with the [command line SQLite3 tools](https://sqlite.org/download.html) and Windows batch scripts.
 
