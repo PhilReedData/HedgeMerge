@@ -88,7 +88,7 @@ try:
             "T_DomicileState" ,
             "T_DomicileCountry" ,
             "T_CompanyID" ,
-            "T_CompanyName"
+            "T_CompanyName" ,
             
             
             "E_FundName" ,
@@ -208,67 +208,88 @@ try:
             "E_Strategy" 
             
             FROM SourceCharacteristics
-        LIMIT 1 OFFSET 30000;''' # TEMP LIMIT
+        WHERE SourceFundID = '42464';''' # TEMP LIMIT
         cursor.execute(sql)
         rows = cursor.fetchall()
         names = [description[0] for description in cursor.description]
         print names
+        
+        sourceI = names.index('Source')
+        sourceFundIDI = names.index('SourceFundID')
+        # index of variable in source T or E
+        fundNameTi = names.index('T_Name')
+        fundNameEi = names.index('E_FundName')
+        print ('fundNameEi = ' + str(fundNameEi))
+        currencyTi = names.index('T_CurrencyCode')
+        currencyEi = names.index('E_Currency')
+        companyNameTi = names.index('T_CompanyName')
+        companyNameEi = names.index('E_ManagementCompany')
+        companyIDTi = names.index('T_CompanyID')
+        managementFeeTi = names.index('T_ManagementFee')
+        managementFeeEi = names.index('E_ManagementFee_pc')
+        incentiveFeeTi = names.index('T_IncentiveFee')
+        incentiveFeeEi = names.index('E_PerformanceFee_pc')
+        lockUpTi = names.index('T_LockUpPeriod')
+        lockUpEi = names.index('E_LockUp')
+        noticeTi = names.index('T_RedemptionNoticePeriod')
+        noticeEi = names.index('E_RedemptionNotificationPeriod')
+        hwmTi = names.index('T_HighWaterMark')
+        hwmEi = names.index('E_HighWaterMark')
+        leverageTi = names.index('T_Leveraged')
+        leverageEi = names.index('E_Leverage')
+        minimumInvestmentTi = names.index('T_MinimumInvestment')
+        minimumInvestmentEi = names.index('E_MinimumInvestmentSize')
+        redemptionFrequencyTi = names.index('T_RedemptionFrequency')
+        redemptionFrequencyEi = names.index('E_RedemptionFrequency')
+        subscriptionFrequencyTi = names.index('T_SubscriptionFrequency')
+        subscriptionFrequencyEi = names.index('E_SubscriptionFrequency')
+        strategyTi = names.index('T_PrimaryCategory')
+        strategyEi = names.index('E_MainInvestmentStrategy')
+        domicileTi = names.index('T_DomicileCountry')
+        domicileEi = names.index('E_Domicile')
+        openTi = names.index('T_OpenToPublic')
+        closedEi = names.index('E_Closed')
+        liquidatedTi = names.index('T_Dead')
+        liquidatedEi = names.index('E_Dead')
+        
         for i, row in enumerate(rows):
-            print row
+            print (row)
             # Do the merging
             ## Get the data from row
-            source = row[0]
-            sourceFundID = row[1] # etc
+            source = row[sourceI]
+            sourceFundID = row[sourceFundIDI] # etc
             tass = True if source == 'T' else False
-            #### WARNING! The order of the columns requested is not observed!
-            #### WRONG  wrong wrong.
-            
             ## Do the merging
-            ## Use ref file 'mergedFieldsExceptFirst.txt' for row number
-            # T_Name 3 or E_FundName 54
-            fundName = row[3] if tass else row[54]
-            # T_CurrencyCode 5 or E_Currency 98
-            currency = row[5] if tass else row[98]
-            # T_CompanyName 53 or E_ManagementCompany 123
-            companyName = row[53] if tass else row[123]
-            # T_CompanyID 52 or row index + 1
-            companyID = row[52] if tass else str(i+1)
-            # T_ManagementFee 19 or E_ManagementFee_pc 141
-            managementFee = row[19] if tass else row[141]
-            # T_IncentiveFee 20 or E_PerformanceFee_pc 142
-            incentiveFee = row[20] if tass else row[142]
-            # T_LockUpPeriod 44 or E_LockUp 138
-            lockUp = row[44] if tass else row[138]
-            # T_RedemptionNoticePeriod 43 or E_RedemptionNotificationPeriod 137
-            notice = row[43] if tass else row[137]
-            # T_HighWaterMark 22 or E_HighWaterMark 101
-            hwm = row[22] if tass else row[101]
-            # T_Leveraged 24 or E_Leverage 108
-            leverage = row[24] if tass else row[108]
-            # T_MinimumInvestment 18 or E_MinimumInvestmentSize 105
-            minimumInvestment = row[18] if tass else row[105]
-            # T_RedemptionFrequency 42 or E_RedemptionFrequency 136
-            redemptionFrequency = row[42] if tass else row[136]
-            # T_SubscriptionFrequency 41 or E_SubscriptionFrequency 134
-            subscriptionFrequency = row[41] if tass else row[134]
-            # T_PrimaryCategory 4 or E_MainInvestmentStrategy 88
-            strategy = row[4] if tass else row[88]
-            # T_DomicileCountry 51 or E_Domicile 97
-            domicile = row[51] if tass else row[97]
-            # T_OpenToPublic 35 (invert) or E_Closed 57
+            fundName = row[fundNameTi] if tass else row[fundNameEi]
+            print('fundName = ' + str(fundName))
+            currency = row[currencyTi] if tass else row[currencyEi]
+            companyName = row[companyNameTi] if tass else row[companyNameEi]
+            # Eureka has no companyID, use the row index instead.
+            companyID = row[companyIDTi] if tass else str(i+1)
+            managementFee = row[managementFeeTi] if tass else row[managementFeeEi]
+            incentiveFee = row[incentiveFeeTi] if tass else row[incentiveFeeEi]
+            lockUp = row[lockUpTi] if tass else row[lockUpEi]
+            notice = row[noticeTi] if tass else row[noticeEi]
+            hwm = row[hwmTi] if tass else row[hwmEi]
+            leverage = row[leverageTi] if tass else row[leverageEi]
+            minimumInvestment = row[minimumInvestmentTi] if tass else row[minimumInvestmentEi]
+            redemptionFrequency = row[redemptionFrequencyTi] if tass else row[redemptionFrequencyEi]
+            subscriptionFrequency = row[subscriptionFrequencyTi] if tass else row[subscriptionFrequencyEi]
+            strategy = row[strategyTi] if tass else row[strategyEi]
+            domicile = row[domicileTi] if tass else row[domicileEi]
             closed = ''
             if tass:
-                t_open = row[35]
+                t_open = row[openTi]
+                # Invert open to closed for TASS
                 closed = '1' if t_open == '0' else '0'
             else:
-                e_closed = row[57]
+                e_closed = row[closedEi]
                 closed = '1' if e_closed == 'Yes' else '0'
-            # T_Dead 2 or E_Dead 59
             liquidated = ''
             if tass:
-                liquidated = row[2]
+                liquidated = row[liquidatedTi]
             else:
-                liquidated = '1' if row[59] == 'Yes' else '0'
+                liquidated = '1' if row[liquidatedEi] == 'Yes' else '0'
             
             mergedFields = (fundName, currency, companyName, companyID, managementFee, incentiveFee, lockUp, notice, hwm, leverage, minimumInvestment, redemptionFrequency, subscriptionFrequency, strategy, domicile, closed, liquidated)
             
@@ -298,8 +319,11 @@ try:
             '''
             sql = sql + '"' + source + '", "' + sourceFundID + '"'
             for j, field in enumerate(mergedFields):
+                if field == None: 
+                    field = ''
+                    print ('Empty field ' + str(j) + ' in row ' + str(i))
+                sql = sql + ', "' + str(field) + '"'
                 print ('field ' + str(j) + ': ' + field)
-                sql = sql + ', "' + field + '"'
             sql = sql + '''
             )
             ;'''
@@ -313,8 +337,23 @@ try:
         print ("How many rows in MergedCharacteristics?")
         reply = cursor.fetchone()
         print(reply)
+        
+        sql = "SELECT * FROM MergedCharacteristics LIMIT 1;"
+        cursor.execute(sql)
+        print ("First row in MergedCharacteristics:")
+        reply = cursor.fetchone()
+        names = [description[0] for description in cursor.description]
+        print (names)
+        print(reply)
     
-    # Else not doPopulate? Nothing. May move the count statement here.
+    else: # not doPopulate
+        sql = "SELECT * FROM MergedCharacteristics LIMIT 1;"
+        cursor.execute(sql)
+        print ("First row in MergedCharacteristics:")
+        reply = cursor.fetchone()
+        names = [description[0] for description in cursor.description]
+        print (names)
+        print(reply)
     
 except Exception as e:
     db.rollback()

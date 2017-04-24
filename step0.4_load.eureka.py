@@ -199,6 +199,13 @@ try:
         rows = cursor.fetchall()
         for row in rows:
             print(row)
+        sql = "SELECT * FROM EurekaCharacteristics LIMIT 1;"
+        cursor.execute(sql)
+        print ("First row in EurekaCharacteristics:")
+        reply = cursor.fetchone()
+        names = [description[0] for description in cursor.description]
+        print (names)
+        print(reply)
     
     if doROR:
         # The returns sheet in Excel comes with ROR/AUM alternating lines.
