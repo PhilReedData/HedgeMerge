@@ -108,15 +108,19 @@ try:
                 ) VALUES (
                 '''
                 sql = sql + '"' + source + '", "' + sourceFundID + '"'
+                args = []
                 for j, field in enumerate(mergedFields):
                     if field == None: 
                         field = ''
-                    sql = sql + ', "' + str(field) + '"'
+                    #sql = sql + ', "' + str(field) + '"'
+                    sql = sql + ', ?'
+                    args.append(field)
                     #print ('field ' + str(j) + ': ' + str(field))
                 sql = sql + '''
                 )
                 ;'''
-                cursor.execute(sql)
+                args = tuple(args)
+                cursor.execute(sql, args)
         # Commit
         db.commit()
         
