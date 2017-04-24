@@ -25,12 +25,12 @@ The tables will have these headings. The pair `Source, SourceFundID` is the uniq
 ...where Source is 'T'|'E', SourceFundID is the fund ID given by the Source, and the remaining columns are AUM on the given month.
 
 ### TASSCharacteristics
-`Source, SourceFundID, [All TASS fields]`
-...where Source is 'T', SourceFundID is the fund ID given by the Source, and the remaining columns are the values for the fields in TASS. Used while the date is being imported.
+`Source, SourceFundID, T_Dead, [All TASS fields]`
+...where Source is 'T', SourceFundID is the fund ID given by the Source, T_Dead is '1' for the funds given in the dead files (filenames end with '3'), and the remaining columns are the values for the fields in TASS. Used while the data is being imported.
 
 ### EurekeaCharacteristics
 `Source, SourceFundID, [All Eureka fields]`
-...where Source is 'E', SourceFundID is the fund ID given by the Source, and the remaining columns are the values for the fields in Eureka. Used while the date is being imported.
+...where Source is 'E', SourceFundID is the fund ID given by the Source, and the remaining columns are the values for the fields in Eureka. Used while the data is being imported.
 
 ### SourceCharactaristics
 `Source, SourceFundID, [All TASS fields], [All Eurkea fields]`
@@ -48,6 +48,7 @@ We will fill in the remaining coloumns later:
 
 ## Step 1 - refine characteristics
 1. Create MergedCharacteristics table. Keep company name, currency and fund name (until now, different field names for each source) as well as primary keys of Source and SourceFundID.
+
 2. Create standardized names for companies as a new column. Use method from old inherited code.
 
 ## Data

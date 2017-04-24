@@ -43,7 +43,22 @@ CREATE TABLE MergedCharacteristics
   Currency INT NOT NULL,
   CompanyName INT NOT NULL,
   StdCompanyName INT,
-  UseDummy INT,
+  LongestHist INT,
+  CompanyID INT NOT NULL,
+  ManagementFee INT NOT NULL,
+  IncentiveFee INT NOT NULL,
+  LockUp INT NOT NULL,
+  Notice VARCHAR NOT NULL,
+  HWM INT NOT NULL,
+  Leverage INT NOT NULL,
+  MinimumInvestment INT NOT NULL,
+  RedemptionFrequency VARCHAR NOT NULL,
+  SubscriptionFrequency VARCHAR NOT NULL,
+  Strategy VARCHAR NOT NULL,
+  Domicile VARCHAR NOT NULL,
+  Closed INT NOT NULL,
+  Liquidated INT NOT NULL,
+  MergedFundID INT,
   PRIMARY KEY (Source, SourceFundID)
 );
 

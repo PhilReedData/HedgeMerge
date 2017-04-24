@@ -281,17 +281,31 @@ ON TASSCharacteristics.Source = EurekaCharacteristics.Source
     
     # MergedCharacteristics TABLE
     # May need to change this later
-    sql = '''CREATE TABLE IF NOT EXISTS EurekaCharacteristics (
+    sql = '''CREATE TABLE IF NOT EXISTS MergedCharacteristics (
         Source CHAR(1) NOT NULL,
         SourceFundID VARCHAR(50) NOT NULL,
         
-        FundName VARCHAR(255),
-        Currency VARCHAR(50), 
-        CompanyName VARCHAR(255),
+        FundName VARCHAR(255) NOT NULL,
+        Currency VARCHAR(50) NOT NULL, 
+        CompanyName VARCHAR(255) NOT NULL,
+        CompanyID INTEGER NOT NULL,
+        ManagementFee VARCHAR(255) NOT NULL,
+        IncentiveFee VARCHAR(255) NOT NULL,
+        LockUp VARCHAR(255) NOT NULL,
+        Notice VARCHAR(255) NOT NULL,
+        HWM VARCHAR(255) NOT NULL,
+        Leverage VARCHAR(255) NOT NULL,
+        MinimumInvestment VARCHAR(255) NOT NULL,
+        RedemptionFrequency VARCHAR(255) NOT NULL,
+        SubscriptionFrequency VARCHAR(255) NOT NULL,
+        Strategy VARCHAR(255) NOT NULL,
+        Domicile VARCHAR(50) NOT NULL,
+        Closed INTEGER NOT NULL,
+        Liquidated INTEGER NOT NULL,
         
         StdCompanyName VARCHAR(255), 
         MergedFundID VARCHAR(50), 
-        UseDummy VARCHAR(1),
+        LongestHist VARCHAR(1),
         
         PRIMARY KEY (Source, SourceFundID)
 );'''
