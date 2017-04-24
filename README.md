@@ -38,11 +38,11 @@ The tables will have these headings. The pair `Source, SourceFundID` is the uniq
 
 #### MergedCharacteristics
 We will be developing this table as we go along. It starts as a reduced version of the SourceCharacteristics:
-`Source, SourceFundID, FundName, Currency, CompanyName`
+`Source, SourceFundID, FundName, Currency, CompanyName, CompanyID, ManagementFee, IncentiveFee, LockUp, Notice, HWM, Leverage, MinimumInvestment, RedemptionFrequency, SubscriptionFrequency, Strategy, Domicile, Closed, Liquidated`
 
 We will fill in the remaining coloumns later:
-`StdCompanyName, MergedFundID, UseDummy`
-...where MergedFundID is not unique, and UseDummy is 1 or 0.
+`StdCompanyName, MergedFundID, LongestHist`
+...where MergedFundID is not unique, and LongestHist is 1 or 0.
 
 (_I am up to here so far with the code!_)
 

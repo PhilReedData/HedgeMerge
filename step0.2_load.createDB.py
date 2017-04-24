@@ -67,11 +67,13 @@ try:
     
     # TASSCharacteristics TABLE
     # SourceFundID is T_ProductReference
+    # Add T_Dead to day which files it came from (file1 = alive -> 0, file3 = dead -> 1)
     
     sql = '''CREATE TABLE IF NOT EXISTS TASSCharacteristics (
         Source CHAR(1) NOT NULL,
         SourceFundID VARCHAR(50) NOT NULL,
         
+        "T_Dead" INTEGER,
         "T_Name" VARCHAR(255),
         "T_PrimaryCategory" VARCHAR(50),
         "T_CurrencyCode"  VARCHAR(50),

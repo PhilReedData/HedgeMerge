@@ -38,8 +38,9 @@ if True:
     # read source.tass.dead.companies
     # read source.tass.dead.productdetails
     # read source.tass.dead.productperformance
-    livePaths = (config.get('SourceFiles', 'source.tass.live.companies'), config.get('SourceFiles', 'source.tass.live.productdetails'), config.get('SourceFiles', 'source.tass.live.productperformance'))
-    deadPaths = (config.get('SourceFiles', 'source.tass.dead.companies'), config.get('SourceFiles', 'source.tass.dead.productdetails'), config.get('SourceFiles', 'source.tass.dead.productperformance'))
+    # TUPLE = (companiesPath, productDetailsPath, productPerformancePath, dead)
+    livePaths = (config.get('SourceFiles', 'source.tass.live.companies'), config.get('SourceFiles', 'source.tass.live.productdetails'), config.get('SourceFiles', 'source.tass.live.productperformance'), '0')
+    deadPaths = (config.get('SourceFiles', 'source.tass.dead.companies'), config.get('SourceFiles', 'source.tass.dead.productdetails'), config.get('SourceFiles', 'source.tass.dead.productperformance'), '1')
     alltimeFilePaths = [livePaths, deadPaths]
     fundsMatchedToCompany = 0
     fundsNotMatchedToCompany = 0
@@ -53,6 +54,7 @@ if True:
             companiesPath = filePaths[0]
             productDetailsPath = filePaths[1]
             performancePath = filePaths[2]
+            dead = filePaths[3]
             #print('co = ' + companiesPath + ', de = ' + productDetailsPath + ', pe = ' + performancePath)
             
             # Load companies into memory first
@@ -85,8 +87,9 @@ if True:
                     next(rows) # skip header
                     for row in rows:
                         sql = '''INSERT INTO TASSCharacteristics(
-            Source,
-            SourceFundID,        
+            Source, 
+            "T_Dead" ,
+            SourceFundID,    
             "T_Name" ,
             "T_PrimaryCategory" ,
             "T_CurrencyCode"  ,
@@ -140,7 +143,7 @@ if True:
             "T_CompanyName" ) VALUES ('''
                         
                         #0"ProductReference",1"Name",2"PrimaryCategory",3"CurrencyCode",4"CurrencyDescription",5"LegalStructure",6"ClosedToInvestDate",7"ReopenToInvestDate",8"InceptionDate",9"PerformanceStartDate",10"PerformanceEndDate",11"GrossNett",12"InitialNAV",13"InitialSharePrice",14"Guaranteed",15"NavROR",16"MinimumInvestment",17"ManagementFee",18"IncentiveFee",19"ManagementFeePayablePeriod",20"HighWaterMark",21"ShareEqualisationMethod",22"Leveraged",23"MaxLeverage",24"AvgLeverage",25"Futures",26"Derivatives",27"Margin",28"FXCredit",29"PersonalCapital",30"PersonalCapitalAmount",31"CurrencyExposure",32"OpenEnded",33"OpenToPublic",34"InvestsInManagedAccounts",35"InvestsInOtherFunds",36"AcceptsManagedAccounts",37"ManagedAccountsMinAmount",38"TrackingFrequency",39"SubscriptionFrequency",40"RedemptionFrequency",41"RedemptionNoticePeriod",42"LockUpPeriod",43"LockUpComment",44"PayOutPeriod",45"PayOutComment",46"AuditDate",47"RegisteredInvestmentAdviser",48"DomicileState",49"DomicileCountry"
-                        sql = sql + '"T"' + ', '
+                        sql = sql + '"T"' + ', ' + dead + ', ' 
                         # For all fields 0 to 49 above
                         for cell in row:
                             sql = sql + '"' + cell + '", '
