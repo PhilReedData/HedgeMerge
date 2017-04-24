@@ -33,11 +33,12 @@ The tables will have these headings. The pair `Source, SourceFundID` is the uniq
 ...where Source is 'E', SourceFundID is the fund ID given by the Source, and the remaining columns are the values for the fields in Eureka. Used while the data is being imported.
 
 ### SourceCharactaristics
+**ALERT: THIS TABLE DOES NOT WORK, WILL REMOVE ALL TRACE OF IT!**
 `Source, SourceFundID, [All TASS fields], [All Eurkea fields]`
 ...where Source is 'T'|'E', SourceFundID is the fund ID given by the Source, and the remaining columns are the values for the fields in TASS or in Eureka. Apart from the first two columns, the table will be half empty (no TASS fields for Eureka funds, and vice versa). Formed as a View of a full outer join of  `TASSCharacteristics` and `EurekeaCharacteristics` (strictly, a union of two left outer joins, since SQLite does not have the full outer join function).
 
 #### MergedCharacteristics
-We will be developing this table as we go along. It starts as a reduced version of the SourceCharacteristics:
+We will be developing this table as we go along. It starts as a reduced version of the EurekaCharacteristics and TASSCharacteristics tables combined:
 `Source, SourceFundID, FundName, Currency, CompanyName, CompanyID, ManagementFee, IncentiveFee, LockUp, Notice, HWM, Leverage, MinimumInvestment, RedemptionFrequency, SubscriptionFrequency, Strategy, Domicile, Closed, Liquidated`
 
 We will fill in the remaining coloumns later:
@@ -47,7 +48,7 @@ We will fill in the remaining coloumns later:
 (_I am up to here so far with the code!_)
 
 ## Step 1 - refine characteristics
-1. Create MergedCharacteristics table. Keep company name, currency and fund name (until now, different field names for each source) as well as primary keys of Source and SourceFundID.
+1. Create MergedCharacteristics table. Keep company name, currency and fund name (until now, different field names for each source) as well as primary keys of Source and SourceFundID and a selection of others. Read from both EurkeaCharacteristics and TASSCharacteristics to populate this table.
 
 2. Create standardized names for companies as a new column. Use method from old inherited code.
 

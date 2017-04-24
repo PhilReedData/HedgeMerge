@@ -1,6 +1,7 @@
 #!/usr/bin/python    
 # Step 0.5
 # Load: Create the View of both characteristics tables together.
+## NOTE: Although this appears to work, data end up in the wrong columns. DROP THIS STAGE!
 
 import ConfigParser
 import sqlite3

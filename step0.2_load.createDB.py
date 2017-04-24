@@ -263,6 +263,7 @@ try:
     # Create it later once the TASS and Eureka tables are populated.
     # SQLite does not have full outer join, so use union of two left outer joins instead.
     # Join on two-variable primary key Source and SourceFundID
+    #### ALERT: IT DOES NOT WORK, WILL REMOVE IT.
     sql = '''CREATE VIEW "SourceCharacteristics" AS
 
 SELECT * FROM TASSCharacteristics 

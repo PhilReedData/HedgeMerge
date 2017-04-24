@@ -199,9 +199,9 @@ try:
         rows = cursor.fetchall()
         for row in rows:
             print(row)
-        sql = "SELECT * FROM EurekaCharacteristics LIMIT 1;"
+        sql = "SELECT * FROM EurekaCharacteristics  LIMIT 1;"
         cursor.execute(sql)
-        print ("First row in EurekaCharacteristics:")
+        print ("One row in EurekaCharacteristics:")
         reply = cursor.fetchone()
         names = [description[0] for description in cursor.description]
         print (names)
