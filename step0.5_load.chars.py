@@ -6,7 +6,7 @@
 import ConfigParser
 import sqlite3
 
-doCreateView = True
+doCreateView = False
 
 config = ConfigParser.RawConfigParser()
 config.read('paths.properties')
