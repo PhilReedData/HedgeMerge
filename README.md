@@ -49,9 +49,9 @@ We will fill in the remaining coloumns later:
 ## Step 1 - refine characteristics
 1. Create MergedCharacteristics table. Keep company name, currency and fund name (until now, different field names for each source) as well as primary keys of Source and SourceFundID and a selection of others. Read from both EurkeaCharacteristics and TASSCharacteristics to populate this table.
 
-(_I am up to here so far with the code!_)
-
 2. Create standardized names for companies as a new column. Use method from old inherited code.
+
+(_I am up to here so far with the code!_)
 
 ## Data
 Data is stored in an SQLite database. It could be exported to flat text, easiest with the [command line SQLite3 tools](https://sqlite.org/download.html) and Windows batch scripts.
