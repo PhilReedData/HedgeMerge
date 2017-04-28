@@ -3,7 +3,7 @@
 # Standardized company names : For each row in MergedCharacteristics, create StdCompanyName.
 
 LF_LEGAL = [' LTD$',' Limited$',' LLC$',' LP$', ' LC$', ' Inc$',' Corporation$',' Corp$', ' Co$', ' Corporation$', ' AG$', ' GMBH$', ' SA$', ' PTE$', ' PLC$', ' PTY$', ' CP$', ' NV$', ' LLP$']
-LF_COUNTRY = [' \(CAYMAN\)$', ' \(UK\)$', ' OVERSEAS$', ' OFFSHORE$', ' \(CYPRUS\)$', ' INTERNATIONAL$', ' COMPANY$' , ' \(BERMUDA\)$', ' BERMUDA$', ' BVI$' , ' \(SINGAPORE\)$', ' \(INDIA\)$', ' \(HK\)$', ' \(BAHAMAS\)$', ' \(UK\)$', ' \(ZUG\)$', ' \(ISRAEL\)$', ' \(HK\)$', ' \(IRELAND\)$', ' \(GUERNSEY\)$', ' \(ASIA\)$', ' \(SWEDEN\)$', ' \(USA\)$', ' \(HKG\)$', ' \(SING\)$', ' \(SWITZERLAND\)$', ' \(BVI\)', ' UK$', ' \(UTAH\)$', ' \(US\)$']
+LF_COUNTRY = [' \(CAYMAN\)$', ' \(UK\)$', ' OVERSEAS$', ' OFFSHORE$', ' \(CYPRUS\)$', ' INTERNATIONAL$', ' COMPANY$' , ' \(BERMUDA\)$', ' BERMUDA$', ' BVI$' , ' \(SINGAPORE\)$', ' \(INDIA\)$', ' \(HK\)$', ' \(BAHAMAS\)$', ' \(UK\)$', ' \(ZUG\)$', ' \(ISRAEL\)$', ' \(HK\)$', ' \(IRELAND\)$', ' \(GUERNSEY\)$', ' \(ASIA\)$', ' \(SWEDEN\)$', ' \(USA\)$', ' \(HKG\)$', ' \(SING\)$', ' \(SWITZERLAND\)$', ' \(BVI\)', ' UK$', ' \(UTAH\)$', ' \(US\)$', ' \(CAYMAN ISLANDS\)$', ' \(THAILAND\)$', ' \(JERSEY\)$', ' \(DUBLIN\)$', ' CAYMAN ISLANDS$', ' \(HONG KONG\)$']
 LF_BUZZWORDS = [ ' MANAGEMENT$', ' MANAGERS$', ' MANGEMENT$', ' MGT$', ' MGMT$', '^THE', ' ASSET$', ' CAPITAL$', ' MANAGERMENT$', ' INVESTMENT$',  ' PARTNERS$', ' ADVISORY$', ' ADVISORS$', ' ASSET MANAGEMENT$', ' CAPITAL MANAGEMENT$', ' ASSOCIATES$', ' PRIVATE$', ' PVT$', ' ASSET MANAGEMENT$', ' FUNDS$', ' ADVISERS$', ' TRADING$', ' GROUP$']
 
 # LF_ALL = LF_LEGAL+LF_COUNTRY+LF_BUZZWORDS

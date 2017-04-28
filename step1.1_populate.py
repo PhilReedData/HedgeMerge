@@ -43,6 +43,8 @@ try:
             rows = cursor.fetchall()
             #names = [description[0] for description in cursor.description]
             #print names
+            # Dict of E_ManagementCompany -> generated companyID
+            eCompanyIDs = {}
             
             for i, row in enumerate(rows):
                 # Do the merging
@@ -54,8 +56,14 @@ try:
                 fundName = row['T_Name'] if tass else row['E_FundName']
                 currency = row['T_CurrencyCode'] if tass else row['E_Currency']
                 companyName = row['T_CompanyName'] if tass else row['E_ManagementCompany']
-                # Eureka has no companyID, use the row index instead.
-                companyID = row['T_CompanyID'] if tass else str(i+1)
+                # Eureka has no companyID, use the row index instead (first time)
+                companyID = ''
+                if tass:
+                    companyID = row['T_CompanyID']
+                else:
+                    if companyName not in eCompanyIDs:
+                        eCompanyIDs[companyName] = str(i+1)
+                    companyID = eCompanyIDs[companyName]
                 managementFee = row['T_ManagementFee'] if tass else row['E_ManagementFee_pc']
                 incentiveFee = row['T_IncentiveFee'] if tass else row['E_PerformanceFee_pc']
                 lockUp = row['T_LockUpPeriod'] if tass else row['E_LockUp']
