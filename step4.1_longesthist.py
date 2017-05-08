@@ -88,18 +88,19 @@ try:
         cursor.execute(sql)
         
         # Get all columns and all rows from MergedCharacteristics
-        sql = "SELECT Source, SourceFundID, StdCompanyName, Currency, MergedFundID  FROM MergedCharacteristics2 ORDER BY MergedFundID LIMIT 500 OFFSET 15000;" # TEMP #######
+        sql = "SELECT Source, SourceFundID, StdCompanyName, Currency, MergedFundID  FROM MergedCharacteristics2 ORDER BY MergedFundID;"# LIMIT 500 OFFSET 15000;" # TEMP #######
         df = pd.read_sql(sql, db)
         df = df.set_index(['MergedFundID']).reset_index()
         #print(df)
         
         uniqueMFIDs = df.MergedFundID.unique()
-        #print(uniqueMFID[:5])
-        for mergedFundID in uniqueMFIDs[0:20]: # TEMP ###########################
-            if len(mergedFundID) == 0:
-                # We can't do anything for funds with no company name
+        #print(uniqueMFIDs[:5])
+        for mergedFundID in uniqueMFIDs:#[0:20]: # TEMP ###########################
+            if (mergedFundID is None) or (len(mergedFundID) == 0):
+                # We can't do anything for blank ID
                 continue
             mergedFunds = df[df.MergedFundID == mergedFundID]
+            #print('Number of funds for ' + mergedFundID + ' = ' + str(len(mergedFunds)))
             if len(mergedFunds) < 2:
                 # Has to be the longest if there is only 1!
                 for i in mergedFunds.index:
@@ -107,36 +108,34 @@ try:
                 continue
             fundIDs = []
             ranges = {} # fundID:range
-            for mergedFund in mergedFunds:
-                fundIndex = mergedFund.index
+            mergedFundsIndexList = list(mergedFunds.index)
+            #print (mergedFundsIndexList)
+            for fundIndex in mergedFundsIndexList:
                 # Get Source and SourceFundID
                 source = df.get_value(fundIndex, 'Source')
                 sourceFundID = df.get_value(fundIndex, 'SourceFundID')
                 fundID = source+sourceFundID
                 fundIDs.append(fundID)
+                #print ('> mergedFund.index = ' + str(fundIndex) + ', fundID = ' + fundID)
                 # Get Return data
                 sql = 'SELECT * FROM RateOfReturn WHERE Source = "' + source 
                 sql = sql + '" AND SourceFundID = "' + sourceFundID + '";'
-                df = getReturnSeries(db, cursor, sql, fundID, '')
-                earliest = df.first_valid_index()
-                last = df.last_valid_index()
+                dfR = getReturnSeries(db, cursor, sql, fundID, '')
+                earliest = dfR.first_valid_index()
+                last = dfR.last_valid_index()
                 ranges[fundID] = last - earliest
             # Which fund has the largest range?
-            v=list(d.values())
-            k=list(d.keys())
+            v=list(ranges.values())
+            k=list(ranges.keys())
             longestHistFundID = k[v.index(max(v))]
             # Set the LongestHist values
-            for mergedFund in mergedFunds:
-                fundIndex = mergedFund.index
+            for fundIndex in mergedFundsIndexList:
                 source = df.get_value(fundIndex, 'Source')
                 sourceFundID = df.get_value(fundIndex, 'SourceFundID')
                 fundID = source+sourceFundID
                 value = 1 if fundID == longestHistFundID else 0
                 df.set_value(fundIndex, 'LongestHist', value)
                 
-            
-            #...
-        
         # Will update the real MergedCharacteristics later
         df.to_sql(name='MergedCharacteristics3', con=db, index=False, if_exists='replace')
         # Commit
