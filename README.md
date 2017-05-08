@@ -43,15 +43,19 @@ We will fill in the remaining coloumns later:
 ## Step 1 - refine characteristics
 1. Create MergedCharacteristics table. Keep company name, currency and fund name (until now, different field names for each source) as well as primary keys of Source and SourceFundID and a selection of others. Read from both EurkeaCharacteristics and TASSCharacteristics to populate this table.
 
-2. Create standardized names for companies as a new column. Use method from old inherited code.
+2. Create standardized names for companies as a new column. Use method from old inherited code. List of company suffixes and country suffixes can be checked at the top of this script.
 
 ## Step 2 - merge fund IDs
 1. The `StdCompanyName` field acts as an identifier for where a company is known to be the same across both funds. No need to create a numerical 'duplicate' field for company ID (unless performance becomes an issue, since integer IDs are faster than string IDs). Not ready to populate a merged fund ID yet. No action necessary here.
 
-## Step 3 - look for duplicates, for each new ID, for each currency
+## Step 3 - look for duplicates, for each StdCompanyName, for each Currency
 (_I am up to here so far with the code!_)
 
-1. ...
+1. Find and report duplicate funds to MergedCharacteristics.
+
+## Step 4 - determine longest history for each merged fund
+1. Populate the LongestHist field for each group of unique MergedFundID
+
 
 ## Data
 Data is stored in an SQLite database. It could be exported to flat text, easiest with the [command line SQLite3 tools](https://sqlite.org/download.html) and Windows batch scripts.
