@@ -53,10 +53,13 @@
 import ConfigParser
 import sqlite3
 import pandas as pd
+import numpy as np
+import datetime as dt
 import itertools
 
 doFindDups = True
 
+# Keep a counter when assigning IDs (assumes no interruptions)
 nextMergedFundID = 1
 def getNextMergedFundID():
     global nextMergedFundID
@@ -64,6 +67,50 @@ def getNextMergedFundID():
     nextMergedFundID = nextMergedFundID + 1
     return id
 
+# Give a SQL statement on RateOfReturn or AUM tables, 
+# Get the data as a Pandas DataFrame transposed
+def getReturnSeries(db, cursor, sql, fundIDX, pairX):
+    # Get rows of funds and columns of months
+    # Source, SourceFundID, 1990-01, ...
+    # E, id0, val, ...
+    # T, id1, val, ...
+    # ...
+    dfT = pd.read_sql(sql, db)
+    
+    # What if no rows?
+    if dfT.shape[0] < 1:
+        print ('No return data found for fund ' + fundIDX + ' (pair '+pairX + ')')
+        return pd.DataFrame() # return an empty data frame
+    
+    # Need a single index variable fundID = Source+SourceFundID
+    # FundID, 1990-01, ...
+    # Eid0, val, ...
+    # Tid1, val, ...
+    # ...
+    dfT['FundID'] = dfT.apply(lambda row: row['Source'] + row['SourceFundID'], axis=1)
+    dfT.set_index('FundID', inplace=True)
+    dfT.drop('Source', axis=1, inplace=True)
+    dfT.drop('SourceFundID', axis=1, inplace=True)
+    # Transpose to rows of months and columns of funds
+    # FundID: Eid0, Tid1, ...
+    # 1990-01: val, val, ...
+    # ...
+    df = dfT.T # hope that there are no other columns, just the months
+    dateStrings = list(dfT.columns.values)
+    def handleDate(date):
+        return dt.datetime(year=int(date[0:4]), month=int(date[5:7]), day=1)
+    # Set index as monthly date
+    df.rename(index=handleDate,inplace=True)
+    df.index = pd.PeriodIndex(list(df.index), freq='M')
+    def forceToFloat(x):
+        try:
+            return np.float64(x)
+        except:
+            return np.nan
+    df = df.applymap(forceToFloat)
+    return df
+    
+    
 config = ConfigParser.RawConfigParser()
 config.read('paths.properties')
 dbPath = config.get('DatabaseSection', 'database.dbname')
@@ -90,7 +137,7 @@ try:
         cursor.execute(sql)
         
         # Get all columns and all rows from MergedCharacteristics
-        sql = "SELECT Source, SourceFundID, StdCompanyName, Currency, MergedFundID  FROM MergedCharacteristics ORDER BY StdCompanyName, Currency LIMIT 500 OFFSET 15000;" # TEMP #######
+        sql = "SELECT Source, SourceFundID, StdCompanyName, Currency, MergedFundID  FROM MergedCharacteristics ORDER BY StdCompanyName, Currency;"# LIMIT 500 OFFSET 15000;" # TEMP #######
         df = pd.read_sql(sql, db)
         df = df.set_index(['StdCompanyName', 'Currency']).reset_index()
         #print(df)
@@ -98,7 +145,7 @@ try:
         uniqueNames = df.StdCompanyName.unique()
         #print(uniqueNames[:5])
         
-        for name in uniqueNames[0:20]: # TEMP ###########################
+        for name in uniqueNames:#[0:20]: # TEMP ###########################
             if len(name) == 0:
                 # We can't do anything for funds with no company name
                 continue
@@ -129,18 +176,22 @@ try:
                     source2 = df.get_value(fundIndex2, 'Source')
                     sourceFundID1 = df.get_value(fundIndex1, 'SourceFundID')
                     sourceFundID2 = df.get_value(fundIndex2, 'SourceFundID')
+                    fundID1 = source1+sourceFundID1
+                    fundID2 = source2+sourceFundID2
                     # MIGHT PUT THIS BIT IN ANOTHER SCRIPT...
                     # Get Return data for each
                     sql1 = 'SELECT * FROM RateOfReturn WHERE Source = "' + source1 
                     sql1 = sql1 + '" AND SourceFundID = "' + sourceFundID1 + '";'
                     sql2 = 'SELECT * FROM RateOfReturn WHERE Source = "' + source2 
                     sql2 = sql2 + '" AND SourceFundID = "' + sourceFundID2 + '";'
-                    #...
+                    df1 = getReturnSeries(db, cursor, sql1, fundID1, '1')
+                    df2 = getReturnSeries(db, cursor, sql2, fundID2, '2')
                     # Compare return data, correlation
-                    #...
-                    # ...MIGHT PUT THIS BIT IN ANOTHER SCRIPT
-                    correlationR = 0.99 # for example
-                    if correlationR >= 0.99:
+                    correlationR = 0.0 # for example
+                    if not df1.empty and not df2.empty:
+                        correlationR = df1[fundID1].corr(df2[fundID2], min_periods=12)
+                    treshold = 0.99
+                    if correlationR >= treshold:
                         # Consider this a match
                         # What if this already has been matched? Share ID
                         id = 0
@@ -150,7 +201,7 @@ try:
                             # Use existing id
                             id = id1 if id1 else id2
                             if (id1 and id2) and (id1 <> id2):
-                                print("Error merging")
+                                print('Error merging ' + fundID1 + ' and ' + fundID2 + '. Tried new ids ' + str(id1) + ' and ' + str(id2))
                         else:
                             # RECORD next MergedFundID for all
                             id = getNextMergedFundID()
@@ -190,8 +241,32 @@ try:
         names = [description[0] for description in cursor.description]
         print (names)
         print(reply)
+        
+        #TESTING THE CORELATION
+        # print("Try to get time series data and transpose.")
+        # source1 = 'T'
+        # source2 = 'E'
+        # sourceFundID1 = '99742'
+        # sourceFundID2 = '41526'
+        # fundID1 = source1+sourceFundID1
+        # fundID2 = source2+sourceFundID2
+        # print('From 1 (max): ' + source1 + ' ' + sourceFundID1 )
+        # sql1 = 'SELECT * FROM RateOfReturn WHERE Source = "' + source1 
+        # sql1 = sql1 + '" AND SourceFundID = "' + sourceFundID1 + '";'
+        # df1 = getReturnSeries(db, cursor, sql1)
+        # print (df1[fundID1].max())
+        # print('From 2 (max): ' + source2 + ' ' + sourceFundID2 )
+        # sql2 = 'SELECT * FROM RateOfReturn WHERE Source = "' + source2 
+        # sql2 = sql2 + '" AND SourceFundID = "' + sourceFundID2 + '";'
+        # df2 = getReturnSeries(db, cursor, sql2)
+        # print (df2[fundID2].max())
+        
+        # print ("Corelation")
+        # corelation = df1[fundID1].corr(df2[fundID2], min_periods=12)
+        # print (corelation)
     
-except Exception as e:
+except sqlite3.Error as e:
+#except Exception as e:
     db.rollback()
     import sys
     print 'Error on line {}'.format(sys.exc_info()[-1].tb_lineno)
