@@ -9,7 +9,7 @@ import csv
 import sqlite3
 
 doCharacteristics = True
-doReturns = True 
+doReturns = False 
 
 config = ConfigParser.RawConfigParser()
 config.read('paths.properties')
@@ -314,6 +314,13 @@ if True:
         print('Rows T in RateOfReturn: ' + str(cursor.fetchall()[0][0]))
         cursor.execute("SELECT count(*) FROM AUM WHERE Source = \"T\";")
         print('Rows T in AUM: ' + str(cursor.fetchall()[0][0]))
+        
+        # sql = "SELECT count(DISTINCT a.SourceFundID) FROM RateOfReturn a LEFT JOIN TASSCharacteristics b ON a.SourceFundID = b.SourceFundID AND a.Source = b.Source;"
+        # cursor.execute(sql)
+        # print('\nRows T in RateOfReturn also in TASSCharacteristics: ' + str(cursor.fetchall()[0][0]))
+        # sql = "SELECT count(DISTINCT a.SourceFundID) FROM TASSCharacteristics a LEFT JOIN RateOfReturn b ON a.SourceFundID = b.SourceFundID AND a.Source = b.Source;"
+        # cursor.execute(sql)
+        # print('\nRows T in TASSCharacteristics also in RateOfReturn: ' + str(cursor.fetchall()[0][0]))
     
     
     # Repeats for live/dead funds, appending (insert if not exists?)
