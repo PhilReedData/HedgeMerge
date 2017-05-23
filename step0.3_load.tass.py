@@ -79,6 +79,8 @@ if True:
                 #print (companies['21'])
             except IOError as ioe:
                 print ('Exception raised reading or closing file ' + companiesPath)
+                print ('Number of rows read before exception = ' + str(len(companies)))
+                raise ioe
             
             # Load product details, with companies from memory, for TASSCharacteristics table
             with open(productDetailsPath, 'r') as productDetailsFile:
@@ -162,12 +164,14 @@ if True:
                         cursor.execute(sql)
                     db.commit()
             
-        cursor.execute("SELECT count(*) FROM TASSCharacteristics;")
-        print('Rows in TASSCharacteristics: ' + str(cursor.fetchall()[0][0]))
-        pcFundsMatchedToCompany = 100 * fundsMatchedToCompany/(fundsMatchedToCompany + fundsNotMatchedToCompany)
-        print('Funds matched to company ' + str(fundsMatchedToCompany))
-        print('Funds not matched to company ' + str(fundsNotMatchedToCompany))
-        print('Funds matched to company ' + str(pcFundsMatchedToCompany) + '%')
+            cursor.execute("SELECT count(*) FROM TASSCharacteristics WHERE T_Dead = '" + dead + "';")
+            print('Rows in TASSCharacteristics: ' + str(cursor.fetchall()[0][0]))
+            pcFundsMatchedToCompany = 100 * fundsMatchedToCompany/(fundsMatchedToCompany + fundsNotMatchedToCompany)
+            print('Funds matched to company ' + str(fundsMatchedToCompany))
+            print('Funds not matched to company ' + str(fundsNotMatchedToCompany))
+            print('Funds matched to company ' + str(pcFundsMatchedToCompany) + '%')
+            fundsMatchedToCompany = 0
+            fundsNotMatchedToCompany = 0
     else:
         # Don't doCharacteristics
         sql = "SELECT count(*) FROM TASSCharacteristics;"

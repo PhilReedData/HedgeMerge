@@ -35,6 +35,9 @@ try:
         #     insert into MergedCharacteristics ...  values ...
         # Commit
         
+        # Keep a list of funds with unknown company
+        fundsUnknownCompany = []
+        
         for source in sources:
             print ("Populating MergedCharacteristics from " + source)
             # Get all columns and all rows from EurekaCharacteristics
@@ -56,6 +59,10 @@ try:
                 fundName = row['T_Name'] if tass else row['E_FundName']
                 currency = row['T_CurrencyCode'] if tass else row['E_Currency']
                 companyName = row['T_CompanyName'] if tass else row['E_ManagementCompany']
+                if companyName is None or companyName == '' or companyName == 'N/A':
+                    # Use fund name if company name is not known
+                    companyName = fundName
+                    fundsUnknownCompany.append((source, sourceFundID))
                 # Eureka has no companyID, use the row index instead (first time)
                 companyID = ''
                 if tass:
@@ -146,6 +153,13 @@ try:
         names = [description[0] for description in cursor.description]
         print (names)
         print(reply)
+        
+        # print out funds with unknown company
+        fundsUPath = config.get('OutputFiles', 'output.fundsunknowncompanies')
+        with open(fundsUPath, 'w') as fundsUFile:
+            for fund in fundsUnknownCompany:
+                fundsUFile.write(fund[0] + ', ' + fund[1] + '\n')
+            
     
     else: # not doPopulate
         sql = "SELECT * FROM MergedCharacteristics LIMIT 1;"
