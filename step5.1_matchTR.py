@@ -1,6 +1,7 @@
 #!/usr/bin/python    
 # Step 5.1
 # Match companies with Thomson Reuters (TR) holdings list
+# Should we add fuzzy?
 
 # Read from MergedCharacteristics3, get StdCompanyName
 # Put unique names into new dataframe mapTR
@@ -22,7 +23,7 @@ LF_ALL = LF_LEGAL+LF_COUNTRY
 
 SPECIAL_CHARACTERS = ['[\,\.\-]']
 
-REPLACEMENTS = [("\&"," AND "),("\+"," AND ")]
+REPLACEMENTS = [("\&"," AND "),("\+"," AND "),(" MGMT"," MANAGEMENT")]
 
 # Remove legal forms and country from end, etc.
 def createStdCompanyName(inputName):
@@ -98,17 +99,41 @@ try:
 
         # Get StdCompanyName (unique) from MergedCharacteristics
         sql = "SELECT DISTINCT StdCompanyName FROM MergedCharacteristics ORDER BY StdCompanyName;"# LIMIT 500 OFFSET 15000;" # TEMP #######
-        mapTF = pd.read_sql(sql, db)
-        #mapTF = mapTF.set_index(['StdCompanyName']).reset_index()
-        #print(mapTF)
+        mapTR = pd.read_sql(sql, db)
+        #mapTR = mapTR.set_index(['StdCompanyName']).reset_index()
+        #print(mapTR)
         
         # Get TR names
         allTR = pd.read_csv(config.get('SourceFiles', 'source.tr.companies'))
         #print(allTR)
         
         # Standardize names in allTR, new column StdMGRNAME
+        allTR['StdMgrname'] = allTR['mgrname'].map(createStdCompanyName)
+        #print(allTR)
         
-        #...
+        # Replace MGMT with MANAGEMENT
+        # (this is done by adding an extra item to REPLACEMENTS)
+        
+        # Find matches
+        # # For each row in mapTR (as in, pass the following function to map)
+        # # # Look up name in allTR, return number
+        def getNumber(name):
+            matchedDF = allTR[allTR['StdMgrname'] == name]
+            return matchedDF['mgrno'].iloc[0] if not matchedDF.empty else None
+        mapTR['mgrno'] = mapTR['StdCompanyName'].map(getNumber)
+        #print(mapTR)
+        
+        # Count matches
+        countRows = len(mapTR['mgrno'])
+        countValidRows = mapTR['mgrno'].count()
+        countNaN = countRows - countValidRows
+        print('Names with no match:',countNaN,'of',countRows)
+        
+        # print out table of matches 
+        mapTRPath = config.get('OutputFiles', 'output.matchtr')
+        mapTR.to_csv(mapTRPath, sep=',', index=False)
+        print('Written to file: ' + mapTRPath)
+        # Matched 1239 of 10560 names
         
     else: # not doMatchTR
         sql = "SELECT count(*) FROM MergedCharacteristics3 WHERE 'LongestHist' NOT NULL;"
